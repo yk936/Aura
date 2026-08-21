@@ -159,15 +159,16 @@ input:focus-visible {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
 
-  padding: 32px 20px;
+  padding: 16px 12px;
   text-align: center;
   overflow-y: auto;
   max-height: 480px;
 }
 
 .welcome-content {
+  margin: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -254,6 +255,7 @@ input:focus-visible {
   margin: 0;
   font-size: 14px;
   line-height: 1.5;
+  white-space: pre-wrap;
 }
 
 .chat-bubble .timestamp {
@@ -270,6 +272,48 @@ input:focus-visible {
   color: #ffffff;
   border-bottom-right-radius: 4px;
   box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+.assistant-message {
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+  border-bottom-left-radius: 4px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.error-message {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+
+.thinking-bubble {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+}
+
+.thinking-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #a5b4fc;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .status-card {
@@ -293,6 +337,12 @@ input:focus-visible {
   border-radius: 50%;
 
   box-shadow: 0 0 14px rgba(52, 211, 153, 0.65);
+  transition: background 300ms ease, box-shadow 300ms ease;
+}
+
+.status-dot-busy {
+  background: #f59e0b;
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.65);
 }
 
 .status-card div:last-child {
@@ -334,6 +384,11 @@ input:focus-visible {
   outline: 0;
 }
 
+.chat-form input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .chat-form input::placeholder {
   color: rgba(255, 255, 255, 0.32);
 }
@@ -355,11 +410,12 @@ input:focus-visible {
   cursor: pointer;
   transition:
     transform 180ms ease,
-    background 180ms ease;
+    background 180ms ease,
+    opacity 180ms ease;
 }
 
 .voice-button:hover,
-.send-button:hover {
+.send-button:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.1);
   transform: translateY(-1px);
 }
@@ -369,8 +425,14 @@ input:focus-visible {
   background: rgba(99, 102, 241, 0.72);
 }
 
-.send-button:hover {
+.send-button:hover:not(:disabled) {
   background: rgba(99, 102, 241, 0.9);
+}
+
+.send-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .sr-only {
