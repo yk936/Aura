@@ -8,7 +8,8 @@ export const TASK_TYPES = {
   REASONING: "reasoning",
   ANALYSIS: "analysis",
   SUMMARIZATION: "summarization",
-  RESEARCH: "research",
+  WEB_SEARCH: "web_search",
+  DEEP_RESEARCH: "deep_research",
   VISION: "vision",
   TOOL_REQUEST: "tool_request",
 };
@@ -24,6 +25,36 @@ export function classifyTask(prompt = "") {
   }
 
   const text = prompt.toLowerCase();
+
+  // Explicit Deep Research trigger
+  if (
+    text.includes("deep research") ||
+    text.includes("research this") ||
+    text.includes("research the current") ||
+    text.includes("comprehensive research") ||
+    (text.includes("research") && text.includes("compare"))
+  ) {
+    return TASK_TYPES.DEEP_RESEARCH;
+  }
+
+  // Explicit or implicit Web Search trigger
+  if (
+    text.includes("search the web") ||
+    text.includes("search web") ||
+    text.includes("google search") ||
+    text.includes("latest news") ||
+    text.includes("latest major") ||
+    text.includes("latest model") ||
+    text.includes("latest releases") ||
+    text.includes("current price") ||
+    text.includes("current market") ||
+    text.includes("current specs") ||
+    text.includes("recent releases") ||
+    text.includes("what happened today") ||
+    text.includes("latest version")
+  ) {
+    return TASK_TYPES.WEB_SEARCH;
+  }
 
   // Coding indicators
   if (
@@ -56,11 +87,6 @@ export function classifyTask(prompt = "") {
   // Analysis indicators
   if (text.includes("analyze") || text.includes("compare") || text.includes("pros and cons") || text.includes("review")) {
     return TASK_TYPES.ANALYSIS;
-  }
-
-  // Research indicators
-  if (text.includes("search") || text.includes("latest news") || text.includes("find out") || text.includes("who is")) {
-    return TASK_TYPES.RESEARCH;
   }
 
   return TASK_TYPES.GENERAL_CHAT;
