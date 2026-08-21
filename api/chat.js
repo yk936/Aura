@@ -28,10 +28,15 @@ export default async function handler(req, res) {
 
     const ai = new GoogleGenAI({ apiKey });
 
-    // Using gemini-3.6-flash model
+    const systemInstruction = "You are AURA, the user's personal AI assistant. Your name is AURA. Never identify yourself as Gemini, Google Gemini, or another AI model. Gemini is only the underlying language model powering you. Always respond as AURA. Be natural, intelligent, helpful, and conversational. If the user asks who you are, say that you are AURA, their personal AI assistant.";
+
+    // Using gemini-3.6-flash model with systemInstruction
     const response = await ai.models.generateContent({
       model: "gemini-3.6-flash",
       contents: userPrompt,
+      config: {
+        systemInstruction,
+      },
     });
 
     const replyText = response.text || "I'm sorry, I couldn't generate a response at this time.";
