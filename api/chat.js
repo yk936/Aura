@@ -1,4 +1,4 @@
-import { executeAuraPipeline } from "./core/pipeline.js";
+import { executeAuraPipeline } from "../lib/core/pipeline.js";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {

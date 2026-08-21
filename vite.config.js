@@ -1,75 +1,43 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import chatHandler from "./api/chat.js";
+import { executeAuraPipeline } from "./lib/core/pipeline.js";
 
-function apiChatPlugin() {
-  const handleApi = (req, res, next) => {
-    const url = req.url || "";
-    if (url === "/api/chat" || url.startsWith("/api/chat?")) {
-      let body = "";
+// Local dev server middleware to handle /api/chat during npm run dev / preview
+const apiChatPlugin = () => ({
+  name: "api-chat-plugin",
+  configureServer(server) {
+    server.middlewares.use("/api/chat", async (req, res) => {
+      if (req.method !== "POST") {
+        res.statusCode = 405;
+        res.end(JSON.stringify({ error: "Method not allowed. Use POST." }));
+        return;
+      }
+
+      let bodyStr = "";
       req.on("data", (chunk) => {
-        body += chunk;
+        bodyStr += chunk;
       });
+
       req.on("end", async () => {
         try {
-          req.body = body ? JSON.parse(body) : {};
-        } catch (e) {
-          req.body = {};
-        }
-
-        res.status = (code) => {
-          res.statusCode = code;
-          return res;
-        };
-        res.json = (data) => {
+          const body = JSON.parse(bodyStr || "{}");
+          const result = await executeAuraPipeline(body);
+          res.statusCode = 200;
           res.setHeader("Content-Type", "application/json");
-          res.end(JSON.stringify(data));
-        };
-
-        try {
-          await chatHandler(req, res);
+          res.end(JSON.stringify(result));
         } catch (err) {
-          console.error("Error in plugin chat handler:", err);
-          if (!res.headersSent) {
-            res.statusCode = 500;
-            res.setHeader("Content-Type", "application/json");
-            res.end(JSON.stringify({ error: err.message }));
-          }
+          res.statusCode = err?.isHandledAuraError ? 500 : 400;
+          res.setHeader("Content-Type", "application/json");
+          res.end(JSON.stringify({ error: err?.message || "An unexpected error occurred." }));
         }
       });
-    } else {
-      next();
-    }
-  };
-
-  return {
-    name: "api-chat-plugin",
-    configureServer(server) {
-      server.middlewares.use(handleApi);
-    },
-    configurePreviewServer(server) {
-      server.middlewares.use(handleApi);
-    },
-  };
-}
+    });
+  },
+});
 
 export default defineConfig({
   plugins: [react(), apiChatPlugin()],
-
   server: {
-    host: true,
-    port: 5173,
-    strictPort: true,
-  },
-
-  preview: {
-    host: true,
-    port: 4173,
-    strictPort: true,
-  },
-
-  build: {
-    target: "es2020",
-    sourcemap: true,
+    port: 3000,
   },
 });
